@@ -1,10 +1,28 @@
+"use client";
 import { MainUserTypeDefinition } from "@/features/signup_usertype_definition/main_usertype_definition";
 import { BiBuildings } from "react-icons/bi";
 
+import { useState } from "react";
+
 export default function SignUp() {
+    const [userType, setUserType] = useState<string | null>(null);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    console.log("Formulário enviado");
+    console.log("CPF:", e.currentTarget.cpf.value);
+    console.log("Nome:", e.currentTarget.nome.value);
+    console.log("Telefone:", e.currentTarget.telefone.value);
+    console.log("Senha:", e.currentTarget.password.value);
+    console.log("Tipo de Usuário:", userType);
+  };
+
   return (
-    <div className="bg-blue-100 h-screen flex items-center justify-center">
-      <div className="flex flex-col h-fit bg-white rounded-lg shadow-lg p-8 m-4 w-1/3">
+    <div className="bg-blue-100 h-full flex items-center justify-center">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col h-fit bg-white rounded-lg shadow-lg p-8 m-4 w-1/3"
+      >
         <div className="flex flex-col items-center mb-4 w-full">
           <div className="bg-blue-600 rounded-full p-2 mb-4">
             <BiBuildings className="text-4xl text-white bg-blue-600 rounded-full" />
@@ -69,7 +87,7 @@ export default function SignUp() {
           </div>
 
           <div>
-            <MainUserTypeDefinition />
+            <MainUserTypeDefinition userType={userType} setUserType={setUserType} />
           </div>
 
           <div className="my-4">
@@ -81,7 +99,7 @@ export default function SignUp() {
             </button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

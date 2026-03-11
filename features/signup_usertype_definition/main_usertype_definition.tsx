@@ -7,8 +7,15 @@ import { ManagmentEmployeeDefinition } from "./managment_emplyee_definition";
 import { GateEmployeeDefinition } from "./gate_employee_definition";
 import { VistantDefinition } from "./vistant_definition";
 
-export const MainUserTypeDefinition = () => {
-  const [selectedUserType, setSelectedUserType] = useState<string | null>(null);
+export const MainUserTypeDefinition = ({ userType, setUserType }: { userType: string | null; setUserType: React.Dispatch<React.SetStateAction<string | null>> }) => {
+
+  const setUserTypeHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const type = e.currentTarget.textContent;
+    if (type) {
+      setUserType(type);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center mb-4 w-full">
@@ -17,32 +24,32 @@ export const MainUserTypeDefinition = () => {
         <span className="font-semibold text-center w-full">Tipo de Usuário</span>
         <div className="flex gap-2 my-4 flex-wrap justify-center">
           <button 
-            className="bg-blue-600 text-white p-2 rounded-lg font-semibold hover:cursor-pointer hover:bg-blue-700"
-            onClick={() => setSelectedUserType("Residente")}
+            className={`bg-blue-600 text-white p-2 rounded-lg font-semibold hover:cursor-pointer hover:bg-blue-700 ${ userType === "Residente" ? "bg-blue-700" : ""}`}
+            onClick={setUserTypeHandler}
           >
             Residente
           </button>
           <button 
-            className="bg-blue-600 text-white p-2 rounded-lg font-semibold hover:cursor-pointer hover:bg-blue-700"
-            onClick={() => setSelectedUserType("Empregado Da Área de lazer")}
+            className={`bg-blue-600 text-white p-2 rounded-lg font-semibold hover:cursor-pointer hover:bg-blue-700 ${ userType === "Empregado Da Área de lazer" ? "bg-blue-700" : ""}`}
+            onClick={setUserTypeHandler}
           >
             Empregado Da Área de lazer
           </button>
           <button 
-            className="bg-blue-600 text-white p-2 rounded-lg font-semibold hover:cursor-pointer hover:bg-blue-700"
-            onClick={() => setSelectedUserType("Empregado gerência")}
+            className={`bg-blue-600 text-white p-2 rounded-lg font-semibold hover:cursor-pointer hover:bg-blue-700 ${ userType === "Empregado gerência" ? "bg-blue-700" : ""}`}
+            onClick={setUserTypeHandler}
           >
             Empregado gerência
           </button>
           <button 
-            className="bg-blue-600 text-white p-2 rounded-lg font-semibold hover:cursor-pointer hover:bg-blue-700"
-            onClick={() => setSelectedUserType("Empregado Portaria")}
+            className={`bg-blue-600 text-white p-2 rounded-lg font-semibold hover:cursor-pointer hover:bg-blue-700 ${ userType === "Empregado Portaria" ? "bg-blue-700" : ""}`}
+            onClick={setUserTypeHandler}
           >
             Empregado Portaria
           </button>
           <button 
-            className="bg-blue-600 text-white p-2 rounded-lg font-semibold hover:cursor-pointer hover:bg-blue-700"
-            onClick={() => setSelectedUserType("Visitante")}
+            className={`bg-blue-600 text-white p-2 rounded-lg font-semibold hover:cursor-pointer hover:bg-blue-700 ${ userType === "Visitante" ? "bg-blue-700" : ""}`}
+            onClick={setUserTypeHandler}
           >
             Visitante
           </button>
@@ -50,19 +57,19 @@ export const MainUserTypeDefinition = () => {
       </div>
 
       <div>
-        {selectedUserType === "Residente" && (
+        {userType === "Residente" && (
           <ResidentDefinition/>
         )}
-        {selectedUserType === "Empregado Da Área de lazer" && (
+        {userType === "Empregado Da Área de lazer" && (
           <LeisureAreaEmployeeDefinition/>
         )}
-        {selectedUserType === "Empregado gerência" && (
+        {userType === "Empregado gerência" && (
           <ManagmentEmployeeDefinition/>
         )}
-        {selectedUserType === "Empregado Portaria" && (
+        {userType === "Empregado Portaria" && (
           <GateEmployeeDefinition/>
         )}
-        {selectedUserType === "Visitante" && (
+        {userType === "Visitante" && (
           <VistantDefinition/>
         )}
       </div>
