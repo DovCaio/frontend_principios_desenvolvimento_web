@@ -3,6 +3,7 @@ import { MainUserTypeDefinition } from "@/features/signup_usertype_definition/ma
 import { BiBuildings } from "react-icons/bi";
 
 import { useState } from "react";
+import { signupNewUser } from "@/utils/requests/sign";
 
 export default function SignUp() {
     const [userType, setUserType] = useState<string | null>(null);
@@ -11,10 +12,19 @@ export default function SignUp() {
 
     console.log("Formulário enviado");
     console.log("CPF:", e.currentTarget.cpf.value);
-    console.log("Nome:", e.currentTarget.nome.value);
-    console.log("Telefone:", e.currentTarget.telefone.value);
+    console.log("Nome:", e.currentTarget.userName.value);
+    console.log("Telefone:", e.currentTarget.phone.value);
     console.log("Senha:", e.currentTarget.password.value);
     console.log("Tipo de Usuário:", userType);
+
+    signupNewUser({
+      cpf: e.currentTarget.cpf.value,
+      name: e.currentTarget.userName.value,
+      phone: e.currentTarget.phone.value,
+      password: e.currentTarget.password.value,
+      userType: userType,
+      employee: {employeeType: ""}
+    });
   };
 
   return (
@@ -50,26 +60,26 @@ export default function SignUp() {
             </div>
 
             <div className="flex flex-col my-4">
-              <label htmlFor="nome" className="font-semibold">
+              <label htmlFor="userName" className="font-semibold">
                 Nome
               </label>
               <input
                 type="text"
-                id="nome"
+                id="userName"
                 className="bg-gray-200 rounded-lg h-8 p-2"
-                name="nome"
+                name="userName"
               />
             </div>
 
             <div className="flex flex-col my-4">
-              <label htmlFor="telefone" className="font-semibold">
-                Telefone
+              <label htmlFor="phone" className="font-semibold">
+                phone
               </label>
               <input
                 type="text"
-                id="telefone"
+                id="phone"
                 className="bg-gray-200 rounded-lg h-8 p-2"
-                name="telefone"
+                name="phone"
               />
             </div>
 
