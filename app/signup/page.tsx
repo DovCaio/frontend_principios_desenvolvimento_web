@@ -10,13 +10,6 @@ export default function SignUp() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log("Formulário enviado");
-    console.log("CPF:", e.currentTarget.cpf.value);
-    console.log("Nome:", e.currentTarget.userName.value);
-    console.log("Telefone:", e.currentTarget.phone.value);
-    console.log("Senha:", e.currentTarget.password.value);
-    console.log("Tipo de Usuário:", userType);
-
     signupNewUser({
       cpf: e.currentTarget.cpf.value,
       name: e.currentTarget.userName.value,

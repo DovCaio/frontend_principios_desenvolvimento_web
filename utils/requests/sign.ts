@@ -55,3 +55,26 @@ export const signupNewUser = async (data: {
     console.error("Error signing up:", error);
   }
 }
+
+
+export const signinUser = async (data: { cpf: string; password: string }) => {
+    try {
+        const response = await fetch(`${url}/auth/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to sign in");
+        }
+
+        const result = await response.json();
+        console.log("Signin successful:", result);
+        return result;
+    } catch (error) {
+        console.error("Error signing in:", error);
+    }
+}
