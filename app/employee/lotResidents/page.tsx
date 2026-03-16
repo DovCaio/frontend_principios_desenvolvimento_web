@@ -7,42 +7,31 @@ import { ResidentAndLotsPopup } from "@/features/residents_and_lots/ResidentsAnd
 
 export default function LotResidentes() {
   const [lots, setLots] = useState<any[]>([]);
-  const [showPop, setShowPop] = useState<boolean>(false)
-  const [lotId, setLotId] = useState<number>(-1)
-
-
+  const [showPop, setShowPop] = useState<boolean>(false);
+  const [lotId, setLotId] = useState<number>(-1);
 
   useEffect(() => {
-    //Pega todos os lotes e seus respectivos moradores
-    const results = [
-      {
-        id: "1",
-        residents: [{ name: "caio", responsible: true }],
-      },
-    ];
+
 
     (async () => {
       const res = await getLots();
-      //console.log(res);
+      console.log(res);
+      setLots(res.data);
     })();
-
-    setLots(results);
   }, []);
 
   const insertAnResident = (e: React.MouseEvent, lotId: number) => {
+    e.preventDefault();
 
-    e.preventDefault()
+    setShowPop(true);
 
-    setShowPop(true)
-
-    setLotId(lotId)
-
-  }
+    setLotId(lotId);
+  };
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <ResidentAndLotsPopup show={showPop} setShow={setShowPop} lotId={lotId}/>
-        
+      <ResidentAndLotsPopup show={showPop} setShow={setShowPop} lotId={lotId} />
+
       <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2 mb-2">
         <House className="w-8 h-8 text-blue-600" />
         Residentes dos lotes
@@ -58,31 +47,39 @@ export default function LotResidentes() {
         <div className="bg-white p-4">
           {lots.map((value) => {
             return (
-              <div key={value.id} className="flex gap-16">
+              <div key={value.id} className="flex justify-between">
                 <div className="max-w-1/6 min-w-1/6">
-                  <h2 className="font-bold">Lote {value.id}</h2>
+                  <h2 className="font-bold">Lote {value.intercom}</h2>
                   <div>
-                    {value.residents.map(
-                      (resident: { name: string; responsible: boolean }) => {
-                        return (
-                          <div key={resident.name} className="flex pl-8">
-                            <p>{resident.name}</p>{" "}
-                            {!resident.responsible ? (
-                              <button className="hover:cursor-pointer">
-                                <ShieldPlus className="text-green-600" />
-                              </button>
-                            ) : (
-                              <button className="hover:cursor-pointer">
-                                <ShieldMinus className="text-red-600" />
-                              </button>
-                            )}
-                          </div>
-                        );
-                      },
+                    {!value.residents  ? (
+                      <p className="text-xs text-gray-400">Nenhum residente</p>
+                    ) : (
+                      value.residents.map(
+                        (resident: { userCpf: string }) => {
+                          return (
+                            <div key={resident.userCpf} className="flex pl-8">
+                              <p className="font-serif pr-6">{resident.userCpf}</p>
+
+                              {resident.userCpf !== value.responsibleId ? (
+                                <button className="hover:cursor-pointer">
+                                  <ShieldPlus className="text-green-600" />
+                                </button>
+                              ) : (
+                                <button className="hover:cursor-pointer">
+                                  <ShieldMinus className="text-red-600" />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        },
+                      )
                     )}
                   </div>
                 </div>
-                <button className="hover:cursor-pointer" onClick={e => insertAnResident(e, value.id)}>
+                <button
+                  className="hover:cursor-pointer"
+                  onClick={(e) => insertAnResident(e, value.id)}
+                >
                   <HousePlus />
                 </button>
               </div>

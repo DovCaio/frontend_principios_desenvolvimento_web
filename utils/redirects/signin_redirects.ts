@@ -2,17 +2,12 @@ import { redirect, RedirectType } from 'next/navigation'
 
 
 export const redirectoHomeUserType = (userType: string) => {
+    console.log(userType)
     switch (userType) {
         case "RESIDENT":
             redirect("/resident", RedirectType.replace);
             break;
-        case "empregado_area_lazer":
-            redirect("/employee", RedirectType.replace);
-            break;
-        case "Employee":
-            redirect("/employee", RedirectType.replace);
-            break;
-        case "empregado_portaria":
+        case "EMPLOYEE":
             redirect("/employee", RedirectType.replace);
             break;
         case "VISITOR":

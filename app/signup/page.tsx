@@ -5,12 +5,15 @@ import { BiBuildings } from "react-icons/bi";
 import { useState } from "react";
 import { signupNewUser } from "@/utils/requests/sign";
 
+
+import { redirect, RedirectType } from 'next/navigation'
+
 export default function SignUp() {
     const [userType, setUserType] = useState<string | null>(null);
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    signupNewUser({
+    const result = await signupNewUser({
       cpf: e.currentTarget.cpf.value,
       name: e.currentTarget.userName.value,
       phone: e.currentTarget.phone.value,
@@ -18,6 +21,11 @@ export default function SignUp() {
       userType: userType,
       employee: {employeeType: ""}
     });
+
+    // Ensure result is not void and has a status property
+    if (result && result.ok) {
+      redirect("/signin")
+    }
   };
 
   return (

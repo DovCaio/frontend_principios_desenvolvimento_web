@@ -30,7 +30,6 @@ export const ResidentAndLotsPopup = ({show,setShow,lotId} : ResidentAndLotsPopup
     const makeResidentOfALot = async (e: React.MouseEvent, residentCpf: number) => {
         e.preventDefault()
 
-        
         console.log(
             await makeAResidentLiveInLot(residentCpf, lotId, localStorage.getItem("token") ?? "")
         )
@@ -43,14 +42,14 @@ export const ResidentAndLotsPopup = ({show,setShow,lotId} : ResidentAndLotsPopup
             <div >
                 {
                     residents.map(resident => {
-                        return <div key={resident.user.cpf} className="flex">
+                        return ( resident.lotId === null && <div key={resident.user.cpf} className="flex">
                             {
                                 <p>{resident.user.name}</p>
 
                             }
 
                             <button className="hover:cursor-pointer" onClick={e => makeResidentOfALot(e, resident.user.cpf)}><HousePlus /></button>
-                        </div>
+                        </div>)
                     })
                 }
             </div>
