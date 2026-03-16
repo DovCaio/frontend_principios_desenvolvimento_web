@@ -54,7 +54,7 @@ export const unMakeResidentResponsible = async (
   lotId: number,
   token: string,
 ) => {
-  return await axios.put(`${url}/employee/unmake_responsible_resident/${cpf}/lot/${lotId}}`, {
+  return await axios.delete(`${url}/employee/unmake_responsible_resident/${cpf}/lot/${lotId}}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

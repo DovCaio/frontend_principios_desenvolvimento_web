@@ -8,7 +8,7 @@ import {
   UserMinus,
   ShieldMinus,
 } from "lucide-react";
-import { getLots, makeResidentResponsible, unmakeAResidentLiveInLot } from "@/utils/requests/lots_managment";
+import { getLots, makeResidentResponsible, unmakeAResidentLiveInLot, unMakeResidentResponsible } from "@/utils/requests/lots_managment";
 import { ResidentAndLotsPopup } from "@/features/residents_and_lots/ResidentsAndLotsPopup";
 import { PopUpyesOrNot } from "@/features/utils/PopUpYesOrNo";
 
@@ -18,6 +18,7 @@ export default function LotResidentes() {
   const [showPopYesOrNo, setShowPopYesOrNo] = useState<boolean>(false);
   const [args, setargs] = useState<any[]>([])
   const [showPopYesOrNo2, setShowPopYesOrNo2] = useState<boolean>(false);
+  const [showPopYesOrNo3, setShowPopYesOrNo3] = useState<boolean>(false);
   const [lotId, setLotId] = useState<number>(-1);
 
 
@@ -51,6 +52,7 @@ export default function LotResidentes() {
       <ResidentAndLotsPopup show={showPop} setShow={setShowPop} lotId={lotId} />
       <PopUpyesOrNot waringMessage={"Tem certeza que deseja remover esse usuário?"} show={showPopYesOrNo} setShow={setShowPopYesOrNo} yesFunction={unmakeAResidentLiveInLot} args={args}/>
       <PopUpyesOrNot waringMessage={"Tem certeza que deseja fazer desse residente o responsável pelo lote?"} show={showPopYesOrNo2} setShow={setShowPopYesOrNo2} yesFunction={makeResidentResponsible} args={args}/>
+      <PopUpyesOrNot waringMessage={"Tem certeza que deseja que esse residente não seja mais responsável pelo lote?"} show={showPopYesOrNo3} setShow={setShowPopYesOrNo3} yesFunction={unMakeResidentResponsible} args={args}/>
       <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2 mb-2">
         <House className="w-8 h-8 text-blue-600" />
         Residentes dos lotes
@@ -90,7 +92,7 @@ export default function LotResidentes() {
                                 <ShieldPlus className="text-green-600" onClick={(e) => {eventsToAlterTheResidentAndLot(e, value.id, resident.userCpf);setShowPopYesOrNo2(true)}} />
                               </button>
                             ) : (
-                              <button className="hover:cursor-pointer">
+                              <button className="hover:cursor-pointer" onClick={(e) => {eventsToAlterTheResidentAndLot(e, value.id, resident.userCpf);setShowPopYesOrNo3(true)}}>
                                 <ShieldMinus className="text-red-600" />
                               </button>
                             )}
