@@ -26,11 +26,15 @@ export const unmakeAResidentLiveInLot = async (
   lotId: number,
   token: string,
 ) => {
-  return await axios.delete(`${url}/employee/dessociate_resident/${cpf}/lot/${lotId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+
+  return axios.delete(
+    `${url}/employee/dessociate_resident/${cpf}/lot/${lotId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };
 
 export const makeResidentResponsible = async (
@@ -38,7 +42,7 @@ export const makeResidentResponsible = async (
   lotId: number,
   token: string,
 ) => {
-  return await axios.put(`/employee/make_responsible_resident/${cpf}/lot/${lotId}}`, {}, {
+  return await axios.put(`${url}/employee/make_responsible_resident/${cpf}/lot/${lotId}}`, {}, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -50,7 +54,7 @@ export const unMakeResidentResponsible = async (
   lotId: number,
   token: string,
 ) => {
-  return await axios.put(`/employee/unmake_responsible_resident/${cpf}/lot/${lotId}}`, {
+  return await axios.put(`${url}/employee/unmake_responsible_resident/${cpf}/lot/${lotId}}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
