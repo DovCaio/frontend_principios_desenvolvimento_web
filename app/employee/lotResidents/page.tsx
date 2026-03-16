@@ -8,7 +8,7 @@ import {
   UserMinus,
   ShieldMinus,
 } from "lucide-react";
-import { getLots, unmakeAResidentLiveInLot } from "@/utils/requests/lots_managment";
+import { getLots, makeResidentResponsible, unmakeAResidentLiveInLot } from "@/utils/requests/lots_managment";
 import { ResidentAndLotsPopup } from "@/features/residents_and_lots/ResidentsAndLotsPopup";
 import { PopUpyesOrNot } from "@/features/utils/PopUpYesOrNo";
 
@@ -16,7 +16,8 @@ export default function LotResidentes() {
   const [lots, setLots] = useState<any[]>([]);
   const [showPop, setShowPop] = useState<boolean>(false);
   const [showPopYesOrNo, setShowPopYesOrNo] = useState<boolean>(false);
-  const [dessasociateArgs, setDessasociateArgs] = useState<any[]>([])
+  const [args, setargs] = useState<any[]>([])
+  const [showPopYesOrNo2, setShowPopYesOrNo2] = useState<boolean>(false);
   const [lotId, setLotId] = useState<number>(-1);
 
 
@@ -36,20 +37,20 @@ export default function LotResidentes() {
     setLotId(lotId);
   };
 
-  const eventsToDisassociateAnResident = async (
+  const eventsToAlterTheResidentAndLot = async (
     e: React.MouseEvent,
     lotId: number,
     residentCpf: string,
   ) => {
     e.preventDefault()
-    setDessasociateArgs([residentCpf, lotId, localStorage.getItem("token")])
-    setShowPopYesOrNo(true)
+    setargs([residentCpf, lotId, localStorage.getItem("token")])
   };
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <ResidentAndLotsPopup show={showPop} setShow={setShowPop} lotId={lotId} />
-      <PopUpyesOrNot waringMessage={"Tem certeza que deseja remover esse usuário?"} show={showPopYesOrNo} setShow={setShowPopYesOrNo} yesFunction={unmakeAResidentLiveInLot} args={dessasociateArgs}/>
+      <PopUpyesOrNot waringMessage={"Tem certeza que deseja remover esse usuário?"} show={showPopYesOrNo} setShow={setShowPopYesOrNo} yesFunction={unmakeAResidentLiveInLot} args={args}/>
+      <PopUpyesOrNot waringMessage={"Tem certeza que deseja fazer desse residente o responsável pelo lote?"} show={showPopYesOrNo2} setShow={setShowPopYesOrNo2} yesFunction={makeResidentResponsible} args={args}/>
       <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2 mb-2">
         <House className="w-8 h-8 text-blue-600" />
         Residentes dos lotes
@@ -73,19 +74,20 @@ export default function LotResidentes() {
                     {!value.residents ? (
                       <p className="text-xs text-gray-400">Nenhum residente</p>
                     ) : (
-                      value.residents.map((resident: { userCpf: string }) => {
+                      value.residents.map((resident: { userCpf: string, id: number }) => {
                         return (
                           <div key={resident.userCpf} className="flex pl-8">
                             <p className="font-serif pr-6">
                               {resident.userCpf}
                             </p>
 
-                            <button className="hover:cursor-pointer" onClick={(e) => {eventsToDisassociateAnResident(e, value.id, resident.userCpf)}}>
+    
+                            <button className="hover:cursor-pointer" onClick={(e) => {eventsToAlterTheResidentAndLot(e, value.id, resident.userCpf);setShowPopYesOrNo(true) }}>
                               <UserMinus className="text-red-600" />
                             </button>
-                            {resident.userCpf !== value.responsibleId ? (
+                            {resident.id !== value.responsibleId ? (
                               <button className="hover:cursor-pointer">
-                                <ShieldPlus className="text-green-600" />
+                                <ShieldPlus className="text-green-600" onClick={(e) => {eventsToAlterTheResidentAndLot(e, value.id, resident.userCpf);setShowPopYesOrNo2(true)}} />
                               </button>
                             ) : (
                               <button className="hover:cursor-pointer">
