@@ -1,8 +1,14 @@
 "use client";
 
+import { api } from '@/utils/requests/api';
 import { Building, LogOut, ShieldCheck, Users, Wrench } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+interface EmployeeProfile {
+  name: string;
+}
 
 export default function EmployeeLayout({
   children,
@@ -10,6 +16,29 @@ export default function EmployeeLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [employee, setEmployee] = useState<EmployeeProfile | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const storedCpf = localStorage.getItem('userCpf');
+        if (storedCpf) {
+          const response = await api.get(`/employee/${storedCpf}`);
+          setEmployee(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    router.push('/signin');
+  };
 
   const menuItems = [
     { name: 'Fila de Manutenção', icon: Wrench, href: '/employee/serviceQueue' },
@@ -19,7 +48,6 @@ export default function EmployeeLayout({
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      
       <aside className="w-64 bg-slate-900 flex flex-col">
         <div className="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950">
           <Building className="w-6 h-6 text-blue-500 mr-2" />
@@ -55,15 +83,20 @@ export default function EmployeeLayout({
 
         <div className="p-4 border-t border-slate-800 bg-slate-950">
           <div className="flex items-center gap-3 px-2 mb-4">
-            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 font-bold border border-slate-700">
-              F
+            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 font-bold border border-slate-700 uppercase">
+              {employee?.name ? employee.name.charAt(0) : 'F'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-white truncate">Funcionário</p>
+              <p className="text-sm font-bold text-white truncate">
+                {employee?.name || 'Carregando...'}
+              </p>
               <p className="text-xs text-slate-400 truncate">Portaria / Manut.</p>
             </div>
           </div>
-          <button className="flex items-center gap-3 px-3 py-2 w-full rounded-lg font-medium text-red-400 hover:bg-red-500/10 transition-colors">
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-3 py-2 w-full rounded-lg font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+          >
             <LogOut className="w-5 h-5" />
             Encerrar Turno
           </button>
@@ -73,7 +106,6 @@ export default function EmployeeLayout({
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>
-      
     </div>
   );
 }
