@@ -50,7 +50,7 @@ export const signupNewUser = async (data: {
     }
 
     const result = await response.json();
-    console.log("Signup successful:", result);
+    return response
   } catch (error) {
     console.error("Error signing up:", error);
   }
