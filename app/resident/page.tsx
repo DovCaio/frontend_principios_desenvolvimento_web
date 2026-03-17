@@ -1,19 +1,76 @@
 "use client";
 
+import { api } from '@/utils/requests/api';
 import { Calendar, UserCheck, Wrench } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+interface DashboardData {
+  user: {
+    name: string;
+    apartment: string;
+  };
+  stats: {
+    activeRequests: number;
+    activeReservations: number;
+    authorizedVisitors: number;
+  };
+}
 
 export default function ResidentDashboard() {
-  const user = { name: 'Cristian', apartment: '101' };
+  const [data, setData] = useState<DashboardData>({
+    user: { name: '...', apartment: '...' },
+    stats: { activeRequests: 0, activeReservations: 0, authorizedVisitors: 0 }
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const storedCpf = localStorage.getItem('userCpf');
+
+        const [profileRes, requestsRes, schedulingsRes, visitorsRes] = await Promise.all([
+          storedCpf ? api.get(`/resident/${storedCpf}`).catch(() => null) : null,
+          storedCpf ? api.get('/service-request/me', { headers: { 'x-user-cpf': storedCpf } }).catch(() => ({ data: [] })) : { data: [] },
+          api.get('/scheduling/me').catch(() => ({ data: [] })),
+          api.get('/visitor').catch(() => ({ data: [] })) 
+        ]);
+
+        let activeRequestsCount = 0;
+        if (requestsRes?.data) {
+          activeRequestsCount = requestsRes.data.filter((req: any) => req.status === 'PENDING' || req.status === 'IN_PROGRESS').length;
+        }
+
+        setData({
+          user: {
+            name: profileRes?.data?.name || 'Morador',
+            apartment: profileRes?.data?.lots?.[0]?.id || 'N/A' 
+          },
+          stats: {
+            activeRequests: activeRequestsCount,
+            activeReservations: schedulingsRes?.data?.length || 0,
+            authorizedVisitors: visitorsRes?.data?.length || 0
+          }
+        });
+
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Bem-vindo, {user.name}! 👋
+          Bem-vindo, {data.user.name}! 👋
         </h1>
         <p className="text-gray-500 font-medium">
-          Apartamento {user.apartment}
+          Apartamento / Lote {data.user.apartment}
         </p>
       </div>
 
@@ -26,8 +83,10 @@ export default function ResidentDashboard() {
                 <Wrench className="w-5 h-5" />
               </div>
             </div>
-            <div className="text-3xl font-black text-gray-900 mb-1">2</div>
-            <p className="text-sm text-gray-500 font-medium">1 pendente, 1 em andamento</p>
+            <div className="text-3xl font-black text-gray-900 mb-1">
+              {isLoading ? '-' : data.stats.activeRequests}
+            </div>
+            <p className="text-sm text-gray-500 font-medium">Chamados em andamento</p>
           </div>
         </Link>
 
@@ -39,8 +98,10 @@ export default function ResidentDashboard() {
                 <Calendar className="w-5 h-5" />
               </div>
             </div>
-            <div className="text-3xl font-black text-gray-900 mb-1">1</div>
-            <p className="text-sm text-gray-500 font-medium">Próxima: Churrasqueira 08/03</p>
+            <div className="text-3xl font-black text-gray-900 mb-1">
+              {isLoading ? '-' : data.stats.activeReservations}
+            </div>
+            <p className="text-sm text-gray-500 font-medium">Reservas confirmadas</p>
           </div>
         </Link>
 
@@ -52,8 +113,10 @@ export default function ResidentDashboard() {
                 <UserCheck className="w-5 h-5" />
               </div>
             </div>
-            <div className="text-3xl font-black text-gray-900 mb-1">2</div>
-            <p className="text-sm text-gray-500 font-medium">Pré-autorizados</p>
+            <div className="text-3xl font-black text-gray-900 mb-1">
+              {isLoading ? '-' : data.stats.authorizedVisitors}
+            </div>
+            <p className="text-sm text-gray-500 font-medium">Pré-autorizados ativos</p>
           </div>
         </Link>
       </div>

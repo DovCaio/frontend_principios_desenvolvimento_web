@@ -1,26 +1,44 @@
 "use client";
 
-import { Package, UserCheck, Users } from 'lucide-react';
-import { useState } from 'react';
+import { api } from '@/utils/requests/api';
+import { LogOut, Search, UserCheck, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-type EntryType = 'GUEST' | 'SERVICE_PROVIDER';
-
-interface AccessLog {
-  id: string;
-  cpf: string;
+interface Visitor {
+  id: number;
   name: string;
-  type: EntryType;
-  apartment: string;
+  cpf: string;
+}
+
+interface ActiveVisitor {
+  id: number;
+  visitorId: number;
+  name: string;
+  cpf: string;
   entryTime: string;
-  status: 'OPEN';
 }
 
 export default function ControleAcesso() {
-  const [cpf, setCpf] = useState('');
-  const [name, setName] = useState('');
-  const [apartment, setApartment] = useState('');
-  const [logs, setLogs] = useState<AccessLog[]>([]);
+  const [searchCpf, setSearchCpf] = useState('');
+  const [foundVisitor, setFoundVisitor] = useState<Visitor | null>(null);
+  const [activeVisitors, setActiveVisitors] = useState<ActiveVisitor[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchActiveVisitors = async () => {
+    try {
+      const response = await api.get('/access/active');
+      setActiveVisitors(response.data);
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao carregar visitantes ativos.');
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveVisitors();
+  }, []);
 
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, '');
@@ -30,169 +48,166 @@ export default function ControleAcesso() {
     return value;
   };
 
-  const handleEntry = (type: EntryType) => {
-    if (!cpf.trim() || !name.trim() || !apartment.trim()) {
-      toast.error('Preencha todos os campos do visitante.');
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCpf = searchCpf.replace(/\D/g, '');
+    
+    if (cleanCpf.length !== 11) {
+      toast.error('Digite um CPF válido com 11 dígitos.');
       return;
     }
 
-    const now = new Date();
-    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    setIsSearching(true);
+    setFoundVisitor(null);
 
-    /* TODO: Integração API (POST)
-       Aqui você vai enviar os dados pro backend criar o registro no banco.
-    */
-
-    const log: AccessLog = {
-      id: String(Date.now()),
-      cpf,
-      name,
-      type,
-      apartment,
-      entryTime: timeStr,
-      status: 'OPEN'
-    };
-
-    setLogs([log, ...logs]);
-    setCpf('');
-    setName('');
-    setApartment('');
-    
-    const typeLabel = type === 'GUEST' ? 'Visita' : 'Prestador de Serviço';
-    toast.success(`${typeLabel} registrado(a) com sucesso!`);
+    try {
+      const response = await api.get(`/visitor/${cleanCpf}`);      
+        if (response.data) {
+        setFoundVisitor(response.data);
+        toast.success('Visitante localizado.');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Visitante não encontrado no sistema.');
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  const quickFill = () => {
-    setCpf('123.456.789-00');
-    setName('Roberto Silva');
-    setApartment('101');
+  const handleEntry = async () => {
+    if (!foundVisitor) return;
+    
+    setIsSubmitting(true);
+    try {
+      await api.post('/access/entry', { visitorId: foundVisitor.id });
+      toast.success('Entrada autorizada com sucesso!');
+      setFoundVisitor(null);
+      setSearchCpf('');
+      fetchActiveVisitors();
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao registrar a entrada.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleExit = async (visitorId: number) => {
+    try {
+      await api.post('/access/exit', { visitorId });
+      toast.success('Saída registrada com sucesso!');
+      fetchActiveVisitors();
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao registrar a saída.');
+    }
   };
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <div className="mb-8 border-b pb-6">
+      <div className="mb-8 border-b border-gray-200 pb-6">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2 mb-2">
           <UserCheck className="w-8 h-8 text-blue-600" />
           Controle de Acesso
         </h1>
-        <p className="text-gray-500">
-          Registre entradas de visitantes e prestadores de serviço na portaria.
+        <p className="text-gray-500 font-medium">
+          Busque visitantes cadastrados e gerencie as entradas e saídas do condomínio.
         </p>
       </div>
 
       <div className="grid lg:grid-cols-12 gap-8">
-        {/* Formulário de Entrada */}
-        <div className="lg:col-span-7 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b bg-gray-50">
-            <h2 className="text-xl font-bold text-gray-800">Registrar Entrada</h2>
+        <div className="lg:col-span-6 space-y-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 bg-gray-50">
+              <h2 className="text-xl font-bold text-gray-800">Localizar Visitante</h2>
+            </div>
+            <div className="p-6">
+              <form onSubmit={handleSearch} className="flex gap-3">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    placeholder="CPF do visitante (000.000.000-00)"
+                    value={searchCpf}
+                    onChange={(e) => setSearchCpf(formatCPF(e.target.value))}
+                    maxLength={14}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-lg font-mono bg-gray-50"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSearching}
+                  className="px-6 bg-gray-900 text-white font-bold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  <Search className="w-5 h-5" />
+                  Buscar
+                </button>
+              </form>
+            </div>
           </div>
-          <div className="p-6 space-y-5">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">CPF do Visitante</label>
-              <input
-                type="text"
-                placeholder="000.000.000-00"
-                value={cpf}
-                onChange={(e) => setCpf(formatCPF(e.target.value))}
-                maxLength={14}
-                autoFocus
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-lg font-mono"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Nome Completo</label>
-              <input
-                type="text"
-                placeholder="Nome do visitante"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-lg"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">Apartamento de Destino</label>
-              <input
-                type="text"
-                placeholder="Ex: 101"
-                value={apartment}
-                onChange={(e) => setApartment(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-lg"
-              />
-            </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-4">
-              <button
-                className="flex flex-col items-center justify-center gap-2 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors shadow-sm h-28"
-                onClick={() => handleEntry('GUEST')}
-              >
-                <Users className="w-8 h-8" />
-                <span className="font-bold text-lg">Entrada Visita</span>
-              </button>
-              <button
-                className="flex flex-col items-center justify-center gap-2 p-4 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-colors shadow-sm h-28"
-                onClick={() => handleEntry('SERVICE_PROVIDER')}
-              >
-                <Package className="w-8 h-8" />
-                <span className="font-bold text-lg">Entrada Serviço</span>
-              </button>
+          {foundVisitor && (
+            <div className="bg-white rounded-xl shadow-sm border border-blue-200 overflow-hidden animate-in fade-in slide-in-from-top-4">
+              <div className="p-6 bg-blue-50/50">
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <p className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-1">Visitante Localizado</p>
+                    <h3 className="text-2xl font-black text-gray-900">{foundVisitor.name}</h3>
+                    <p className="text-gray-600 font-mono mt-1">CPF: {foundVisitor.cpf}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <UserCheck className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
+                <button
+                  onClick={handleEntry}
+                  disabled={isSubmitting}
+                  className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-xl transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <Users className="w-6 h-6" />
+                  Autorizar Entrada
+                </button>
+              </div>
             </div>
-
-            <button
-              className="w-full mt-4 py-2 border border-gray-300 text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-colors text-sm"
-              onClick={quickFill}
-            >
-              Preencher Teste Rápido
-            </button>
-          </div>
+          )}
         </div>
 
-        {/* Últimas Entradas e Estatísticas */}
-        <div className="lg:col-span-5 flex flex-col gap-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-5 border-b bg-gray-50">
-              <h2 className="text-lg font-bold text-gray-800">Últimas Entradas Registradas</h2>
+        <div className="lg:col-span-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-full">
+            <div className="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-800">Visitantes no Condomínio</h2>
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 font-bold rounded-full text-sm">
+                {activeVisitors.length} ativos
+              </span>
             </div>
-            <div className="p-5">
-              {logs.length === 0 ? (
-                <div className="text-center text-gray-400 py-8">
-                  <UserCheck className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>Nenhuma entrada registrada ainda hoje.</p>
+            <div className="p-6">
+              {activeVisitors.length === 0 ? (
+                <div className="text-center text-gray-400 py-12">
+                  <UserCheck className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                  <p className="font-medium text-gray-500 text-lg">Nenhum visitante no momento.</p>
                 </div>
               ) : (
-                <div className="space-y-3 max-h-[380px] overflow-y-auto pr-2">
-                  {logs.slice(0, 10).map((log) => (
-                    <div key={log.id} className="p-4 border border-gray-100 rounded-lg bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                      <div className="flex justify-between items-start mb-2">
-                        <p className="font-bold text-gray-900">{log.name}</p>
-                        <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
-                          log.type === 'GUEST' 
-                            ? 'bg-blue-100 text-blue-700' 
-                            : 'bg-green-100 text-green-700'
-                        }`}>
-                          {log.type === 'GUEST' ? 'VISITA' : 'SERVIÇO'}
-                        </span>
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                  {activeVisitors.map((visitor) => (
+                    <div key={visitor.id} className="p-4 border border-gray-200 rounded-xl bg-white flex items-center justify-between gap-4 hover:border-blue-300 transition-colors">
+                      <div>
+                        <p className="font-bold text-gray-900 text-lg">{visitor.name}</p>
+                        <p className="text-sm text-gray-500 font-mono mt-0.5">{visitor.cpf}</p>
+                        <p className="text-xs font-bold text-gray-400 mt-2 uppercase tracking-wider">
+                          Entrada: {visitor.entryTime || 'Registrado'}
+                        </p>
                       </div>
-                      <div className="text-sm text-gray-600 space-y-1">
-                        <p className="flex justify-between"><span>CPF:</span> <span className="font-mono">{log.cpf}</span></p>
-                        <p className="flex justify-between"><span>Destino:</span> <span className="font-bold">Apt {log.apartment}</span></p>
-                        <p className="flex justify-between text-xs mt-2 text-gray-400"><span>Entrada registrada às:</span> <span>{log.entryTime}</span></p>
-                      </div>
+                      <button
+                        onClick={() => handleExit(visitor.visitorId)}
+                        className="p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors flex flex-col items-center gap-1 min-w-[80px]"
+                      >
+                        <LogOut className="w-5 h-5" />
+                        <span className="text-xs font-bold">Saída</span>
+                      </button>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-             <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm text-center">
-                <p className="text-sm text-gray-500 font-medium mb-1">Total de Entradas</p>
-                <p className="text-3xl font-black text-blue-600">{logs.length}</p>
-             </div>
-             <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm text-center">
-                <p className="text-sm text-gray-500 font-medium mb-1">Prestadores</p>
-                <p className="text-3xl font-black text-green-600">{logs.filter(l => l.type === 'SERVICE_PROVIDER').length}</p>
-             </div>
           </div>
         </div>
       </div>
