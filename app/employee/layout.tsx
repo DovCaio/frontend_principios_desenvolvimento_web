@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from '@/utils/requests/api';
-import { Building, LogOut, ShieldCheck, Users, Wrench } from 'lucide-react';
+import { Building, House, LogOut, ShieldCheck, Users, Wrench } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -44,6 +44,7 @@ export default function EmployeeLayout({
     { name: 'Fila de Manutenção', icon: Wrench, href: '/employee/serviceQueue' },
     { name: 'Controle de Acesso', icon: ShieldCheck, href: '/employee/acessControl' },
     { name: 'Painel de Ativos', icon: Users, href: '/employee/actives' },
+    { name: 'Residentes dos lotes', icon: House, href: '/employee/lotResidents' },
   ];
 
   return (
