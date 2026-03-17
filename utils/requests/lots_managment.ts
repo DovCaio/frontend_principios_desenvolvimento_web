@@ -60,3 +60,11 @@ export const unMakeResidentResponsible = async (
     },
   });
 };
+
+export const  createLot = async (intercom: string) => {
+
+  return await axios.post(`${url}/lot`, {
+    intercom
+  })
+
+}
