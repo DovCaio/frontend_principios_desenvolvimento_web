@@ -1,9 +1,12 @@
+import { createLot } from "@/utils/requests/lots_managment"
+
 export const LoteCreation = () => {
 
 
     const handleLotCreation = (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const intercom = e.currentTarget.intercom.value
+        createLot(intercom)
     }
 
     return (
