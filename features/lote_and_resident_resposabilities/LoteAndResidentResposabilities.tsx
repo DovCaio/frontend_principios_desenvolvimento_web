@@ -49,16 +49,12 @@ export const LoteAndResidentResponsabilities  = () => {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div>
       <ResidentAndLotsPopup show={showPop} setShow={setShowPop} lotId={lotId} />
       <PopUpyesOrNot waringMessage={"Tem certeza que deseja remover esse usuário?"} show={showPopYesOrNo} setShow={setShowPopYesOrNo} yesFunction={unmakeAResidentLiveInLot} args={args}/>
       <PopUpyesOrNot waringMessage={"Tem certeza que deseja fazer desse residente o responsável pelo lote?"} show={showPopYesOrNo2} setShow={setShowPopYesOrNo2} yesFunction={makeResidentResponsible} args={args}/>
       <PopUpyesOrNot waringMessage={"Tem certeza que deseja que esse residente não seja mais responsável pelo lote?"} show={showPopYesOrNo3} setShow={setShowPopYesOrNo3} yesFunction={unMakeResidentResponsible} args={args}/>
-      <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2 mb-2">
-        <House className="w-8 h-8 text-blue-600" />
-        Residentes dos lotes
-      </h1>
-      <p className="text-gray-500">Gerencie os residentes e seus lotes.</p>
+      
 
       <div className="mt-8 shadow-sm">
         <div className="p-6 bg-gray-50 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
