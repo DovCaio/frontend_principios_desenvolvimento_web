@@ -22,7 +22,12 @@ export default function ServiceQueue() {
 
   const fetchChamados = async () => {
     try {
-      const response = await api.get('/service-request');
+      const token = localStorage.getItem("token")
+      const response = await api.get('/employee/service-request', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setChamados(response.data);
     } catch (error) {
       console.error(error);
@@ -97,13 +102,13 @@ export default function ServiceQueue() {
       <div className="space-y-4">
         {isLoading ? (
           <div className="text-center text-gray-500 py-12 font-medium">Carregando chamados...</div>
-        ) : chamados.length === 0 ? (
+        ) : chamados?.length === 0 ? (
           <div className="text-center text-gray-400 py-12 bg-white rounded-xl border border-gray-200 shadow-sm">
             <Wrench className="w-12 h-12 mx-auto mb-3 opacity-30" />
             <p className="font-medium text-gray-500">Nenhum chamado de manutenção na fila.</p>
           </div>
         ) : (
-          chamados.map((chamado) => (
+          chamados?.map((chamado) => (
             <div key={chamado.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row md:justify-between md:items-center gap-6 transition-all hover:border-blue-300 hover:shadow-md">
               
               <div className="flex-1">
