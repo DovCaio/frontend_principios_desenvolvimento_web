@@ -68,3 +68,14 @@ export const  createLot = async (intercom: string) => {
   })
 
 }
+
+
+export const getHistorics = async (lotId: number, token: string) => {
+
+  return axios.get(`${url}/employee/lot_historic/${lotId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+
+}
