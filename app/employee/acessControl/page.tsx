@@ -28,7 +28,12 @@ export default function ControleAcesso() {
 
   const fetchActiveVisitors = async () => {
     try {
-      const response = await api.get('/access/active');
+      const token = localStorage.getItem("token")
+      const response = await api.get('/access/active', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setActiveVisitors(response.data);
     } catch (error) {
       console.error(error);
