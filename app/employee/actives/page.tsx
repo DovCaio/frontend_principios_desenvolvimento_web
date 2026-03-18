@@ -27,7 +27,12 @@ export default function PainelAtivos() {
 
   const fetchActivePeople = async () => {
     try {
-      const response = await api.get('/access/active');
+      const token  = localStorage.getItem("token")
+      const response = await api.get('/access/active', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setActivePeople(response.data);
     } catch (error) {
       console.error(error);
@@ -43,7 +48,9 @@ export default function PainelAtivos() {
 
   const handleRegisterExit = async (person: ActivePerson) => {
     try {
-      await api.post('/access/exit', { visitorId: person.visitorId });
+      await api.post('/access/exit', { visitorId: person.visitorId }, {
+
+      });
       
       const now = new Date();
       const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
