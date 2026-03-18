@@ -5,10 +5,13 @@ import {
   HousePlus,
   UserMinus,
   ShieldMinus,
+  CalendarClock
 } from "lucide-react";
 import { getLots, makeResidentResponsible, unmakeAResidentLiveInLot, unMakeResidentResponsible } from "@/utils/requests/lots_managment";
 import { ResidentAndLotsPopup } from "@/features/residents_and_lots/ResidentsAndLotsPopup";
 import { PopUpyesOrNot } from "@/features/utils/PopUpYesOrNo";
+import { PopUp } from "../utils/Popup";
+import { LotHistoric } from "../lot_historic/LotHistoric";
 
 
 export const LoteAndResidentResponsabilities  = () => {
@@ -21,7 +24,7 @@ export const LoteAndResidentResponsabilities  = () => {
   const [showPopYesOrNo2, setShowPopYesOrNo2] = useState<boolean>(false);
   const [showPopYesOrNo3, setShowPopYesOrNo3] = useState<boolean>(false);
   const [lotId, setLotId] = useState<number>(-1);
-
+  const [showLotHistoric,setShowLotHistoric] = useState<boolean>(false)
 
   useEffect(() => {
     (async () => {
@@ -48,13 +51,22 @@ export const LoteAndResidentResponsabilities  = () => {
     setargs([residentCpf, lotId, localStorage.getItem("token")])
   };
 
+  const eventShowLotHistoric = async (e: React.MouseEvent, lotId: number) => {
+    e.preventDefault()
+    setLotId(lotId)
+    setShowLotHistoric(true)
+  }
+
   return (
     <div>
       <ResidentAndLotsPopup show={showPop} setShow={setShowPop} lotId={lotId} />
       <PopUpyesOrNot waringMessage={"Tem certeza que deseja remover esse usuário?"} show={showPopYesOrNo} setShow={setShowPopYesOrNo} yesFunction={unmakeAResidentLiveInLot} args={args}/>
       <PopUpyesOrNot waringMessage={"Tem certeza que deseja fazer desse residente o responsável pelo lote?"} show={showPopYesOrNo2} setShow={setShowPopYesOrNo2} yesFunction={makeResidentResponsible} args={args}/>
       <PopUpyesOrNot waringMessage={"Tem certeza que deseja que esse residente não seja mais responsável pelo lote?"} show={showPopYesOrNo3} setShow={setShowPopYesOrNo3} yesFunction={unMakeResidentResponsible} args={args}/>
-      
+      <PopUp show={showLotHistoric} setShow={setShowLotHistoric} >
+
+        <LotHistoric lotId={lotId}/>
+      </PopUp>
 
       <div className="mt-8 shadow-sm">
         <div className="p-6 bg-gray-50 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
@@ -67,7 +79,15 @@ export const LoteAndResidentResponsabilities  = () => {
             return (
               <div key={value.id} className="flex justify-between">
                 <div className="max-w-1/6 min-w-1/6">
+                <div className="flex gap-4">
+
                   <h2 className="font-bold">Lote {value.intercom}</h2>
+                  <button className="hover:text-gray-300 hover:cursor-pointer" onClick={(e) => eventShowLotHistoric(e, value.id)}>
+                    <CalendarClock/>
+
+                  </button>
+                </div>
+
                   <p className="text-gray-400 text-xs">Moradores:</p>
                   <div>
                     {!value.residents ? (

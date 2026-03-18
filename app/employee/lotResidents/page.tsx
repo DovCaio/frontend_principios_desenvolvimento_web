@@ -18,6 +18,7 @@ export default function LotResidentes() {
       <p className="text-gray-500">Gerencie os residentes e seus lotes.</p>
       <LoteAndResidentResponsabilities/>
       <LoteCreation/>
+      
     </div>
   )
 
