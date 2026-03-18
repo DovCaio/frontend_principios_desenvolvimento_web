@@ -32,7 +32,7 @@ export default function ControleAcesso() {
       const response = await api.get('/access/active', {
         headers: {
           Authorization: `Bearer ${token}`
-        }
+        } 
       });
       setActiveVisitors(response.data);
     } catch (error) {

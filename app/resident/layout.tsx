@@ -9,7 +9,7 @@ interface UserProfile {
   name: string;
 }
 import { LoggedLayout } from '@/features/logged_layout/LoggedLayout';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function ResidentLayout({
   children,
