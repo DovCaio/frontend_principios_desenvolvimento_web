@@ -1,4 +1,5 @@
 import { LeisureAreaRegistre } from "@/features/leisureAreaRegistre/LeisureAreaRegistre";
+import { OpearateLeisureAreas } from "@/features/operate_in_leisure_areas/OpearateLeisureAreas";
 import { TreePalm } from "lucide-react";
 
 export default function LeisureArea() {
@@ -11,6 +12,8 @@ export default function LeisureArea() {
         </h1>
 
         <LeisureAreaRegistre/>
+
+        <OpearateLeisureAreas/>
 
     </div>
   );

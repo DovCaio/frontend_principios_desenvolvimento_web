@@ -3,10 +3,20 @@ import { url } from "../constants/url"
 
 
 export const postAnLeisureArea = (name : string, capacity: string) => {
-    const result =  axios.post(`${url}/leisure-areas`, {
+    return  axios.post(`${url}/leisure-areas`, {
         name, capacity: parseInt(capacity)
     })
 
 
-    console.log(result)
+}
+
+export const deleteLeisureAreaRequest = (id: number) => {
+
+    return  axios.delete(`${url}/leisure-areas/${id}`)
+
+}
+
+export const requestAllLeisureAreas = () => {
+    return  axios.get(`${url}/leisure-areas`)
+
 }

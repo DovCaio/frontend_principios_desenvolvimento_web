@@ -16,7 +16,7 @@ export const LeisureAreaRegistre = () => {
     <div className="mt-8 shadow-sm">
       <div className="p-6 bg-gray-50 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2 ">
-          Lotes
+          Criar uma Área de lazer
         </h2>
       </div>
 
